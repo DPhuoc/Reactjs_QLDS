@@ -2,12 +2,14 @@ import React, {Component} from 'react';
 import {FormattedMessage} from 'react-intl';
 import {connect} from 'react-redux';
 import {Button, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
+import _ from 'lodash';
 
 class ModalEditUser extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            id: '',
             email: '',
             password: '',
             firstName: '',
@@ -17,6 +19,17 @@ class ModalEditUser extends Component {
     }
 
     componentDidMount() {
+        let user = this.props.currentUser;
+        if (user && !_.isEmpty(user)) {
+            this.setState({
+                id: user.id,
+                email: user.email,
+                password: 'hardcode',
+                firstName: user.firstName,
+                lastName: user.lastName,
+                address: user.address,
+            })
+        }
     }
 
     toggle = () => {
@@ -42,20 +55,10 @@ class ModalEditUser extends Component {
         return isValid
     }
 
-    handleAddNewUser = async () => {
+    handleSaveUser = () => {
         let isValid = this.checkValidInput();
         if (isValid) {
-            let check = await this.props.createNewUser(this.state);
-            console.log(check);
-            if (check === true) {
-                this.setState({
-                    email: '',
-                    password: '',
-                    firstName: '',
-                    lastName: '',
-                    address: '',
-                })
-            }
+            this.props.editUser(this.state);
         }
     }
 
@@ -73,12 +76,14 @@ class ModalEditUser extends Component {
                         <div className="input-container">
                             <label>Email</label>
                             <input type="text" name="email" value={this.state.email}
-                                   onChange={(event) => this.handleOnChangeInput(event)}/>
+                                   onChange={(event) => this.handleOnChangeInput(event)}
+                                   disabled/>
                         </div>
                         <div className="input-container">
                             <label>Password</label>
                             <input type="password" name="password" value={this.state.password}
-                                   onChange={(event) => this.handleOnChangeInput(event)}/>
+                                   onChange={(event) => this.handleOnChangeInput(event)}
+                                   disabled/>
                         </div>
                         <div className="input-container">
                             <label>First Name</label>
@@ -98,7 +103,7 @@ class ModalEditUser extends Component {
                     </div>
                 </ModalBody>
                 <ModalFooter>
-                    <Button className="px-2" color="primary" onClick={() => this.handleAddNewUser()}>Save changes</Button>
+                    <Button className="px-2" color="primary" onClick={() => this.handleSaveUser()}>Save changes</Button>
                     <Button className="px-2" color="secondary" onClick={() => this.toggle()}>Cancel</Button>
                 </ModalFooter>
             </Modal>
